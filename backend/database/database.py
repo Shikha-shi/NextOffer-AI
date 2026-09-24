@@ -6,11 +6,15 @@ Base=declarative_base()
 
 engine=create_engine(url=settings.DB_CONNECTION)
 
-Localsession=sessionmaker(bind=engine)
+SessionLocal=sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False
+    )
 
 def get_db():
-    session=Localsession()
+    db=SessionLocal()
     try:
-        yield session
+        yield db
     finally:
-        session.close()
+        db.close()
