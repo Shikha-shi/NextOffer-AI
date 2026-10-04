@@ -1,13 +1,44 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useEffect, useState } from "react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
    const handleLogout = () => {
   logout();
   navigate("/login");
 };
+const [profileCompletion, setProfileCompletion] = useState(0);
+
+useEffect(() => {
+  const fetchProfileCompletion = async () => {
+    if (!token) return;
+
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/profile/completion",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch profile completion");
+      }
+
+      const data = await response.json();
+
+      setProfileCompletion(data.completion_percentage);
+    } catch (error) {
+      console.error("Profile completion error:", error);
+    }
+  };
+
+  fetchProfileCompletion();
+}, [token]);
 
   return (
     <div className="min-h-screen bg-[#0B1220] text-white">
@@ -81,13 +112,13 @@ const Dashboard = () => {
             </p>
 
             <p className="text-3xl font-bold mt-2">
-              0%
-            </p>
+  {profileCompletion}%
+</p>
 
             <div className="mt-4 h-2 bg-[#0B1220] rounded-full">
               <div
                 className="h-2 bg-[#FF7A00] rounded-full"
-                style={{ width: "0%" }}
+               style={{ width: `${profileCompletion}%` }}
               />
             </div>
           </div>
