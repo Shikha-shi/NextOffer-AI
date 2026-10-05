@@ -58,10 +58,9 @@ def generate_career_roadmap(
     ]
 
     prompt = f"""
-You are a career guidance AI for NextOffer AI.
+You are the career planning AI for NextOffer AI.
 
-Analyze the student's resume information and create a personalized
-career roadmap.
+Analyze the student's resume and create a personalized career roadmap.
 
 Current skills:
 {", ".join(current_skills)}
@@ -69,18 +68,68 @@ Current skills:
 Resume information:
 {text[:12000]}
 
-Create a practical roadmap for the student.
+Return ONLY valid JSON.
 
-Include:
-1. Recommended career direction
-2. Skills the student should learn next
-3. Recommended projects
-4. Learning priorities
-5. Job preparation steps
-6. A short-term roadmap
-7. A long-term roadmap
+Do not use Markdown.
+Do not use code fences.
+Do not add explanations outside the JSON.
 
-Keep the response structured, practical, and suitable for a college student.
+Use exactly this structure:
+
+{{
+  "career_direction": {{
+    "primary": "string",
+    "secondary": "string",
+    "reason": "string"
+  }},
+  "skills_to_learn": [
+    {{
+      "priority": "Critical",
+      "category": "string",
+      "skills": ["string", "string", "string"]
+    }}
+  ],
+  "projects": [
+    {{
+      "title": "string",
+      "description": "string",
+      "technologies": ["string", "string"],
+      "resume_value": "string"
+    }}
+  ],
+  "job_preparation": [
+    {{
+      "title": "string",
+      "description": "string"
+    }}
+  ],
+  "short_term": [
+    {{
+      "period": "Month 1-2",
+      "title": "string",
+      "goals": ["string", "string", "string"]
+    }}
+  ],
+  "long_term": [
+    {{
+      "period": "Year 1",
+      "title": "string",
+      "goals": ["string", "string", "string"]
+    }}
+  ]
+}}
+
+Requirements:
+
+- Make the roadmap specific to this student.
+- Recommend realistic technologies and skills.
+- Keep each description concise.
+- Give 3 to 5 skill categories.
+- Give 3 recommended projects.
+- Give 4 to 6 job preparation steps.
+- Give 3 short-term roadmap stages.
+- Give 3 long-term roadmap stages.
+- Use clear and practical language suitable for a college student.
 """
 
     interaction = client.interactions.create(
@@ -88,7 +137,20 @@ Keep the response structured, practical, and suitable for a college student.
         input=prompt
     )
 
+    roadmap_text = interaction.output_text.strip()
+
+    import json
+
+    try:
+        roadmap = json.loads(roadmap_text)
+    except json.JSONDecodeError:
+        return {
+            "current_skills": current_skills,
+            "roadmap": None,
+            "message": "Gemini returned an invalid roadmap format."
+        }
+
     return {
         "current_skills": current_skills,
-        "roadmap": interaction.output_text
+        "roadmap": roadmap
     }

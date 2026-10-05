@@ -10,6 +10,7 @@ import StudentProfile from "./pages/StudentProfile";
 import Resume from "./pages/Resume";
 import SkillGap from "./pages/SkillGap";
 import JobRecommendations from "./pages/JobRecommendations";
+import CareerRoadmap from "./pages/CareerRoadmap";
 
 function App() {
   return (
@@ -22,13 +23,14 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<StudentProfile />} />
-          <Route path="/resume" element={<Resume />} />
-          <Route path="/skills" element={<SkillGap />} />
-          <Route path="/jobs" element={<JobRecommendations />} />
-        </Route>
+<Route element={<ProtectedRoute />}>
+  <Route path="/dashboard" element={<Dashboard />} />
+  <Route path="/profile" element={<StudentProfile />} />
+  <Route path="/resume" element={<Resume />} />
+  <Route path="/skills" element={<SkillGap />} />
+  <Route path="/jobs" element={<JobRecommendations />} />
+  <Route path="/career-roadmap" element={<CareerRoadmap />} />
+</Route>
 
         {/* Unknown Routes */}
         <Route

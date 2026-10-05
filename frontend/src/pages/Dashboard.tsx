@@ -349,6 +349,33 @@ useEffect(() => {
                 Ask NextOffer AI →
               </p>
             </Link>
+            {/* Career Roadmap */}
+<Link
+  to="/career-roadmap"
+  className="group bg-[#172554] border
+  border-blue-900/60 rounded-2xl p-6
+  hover:border-[#FF7A00]/60 transition"
+>
+  <div className="w-12 h-12 rounded-xl
+    bg-[#FF7A00]/10 flex items-center
+    justify-center text-2xl"
+  >
+    🗺️
+  </div>
+
+  <h3 className="text-xl font-bold mt-5">
+    Career Roadmap
+  </h3>
+
+  <p className="text-gray-400 mt-2">
+    Get a personalized AI-powered roadmap based on
+    your skills, resume, and career goals.
+  </p>
+
+  <p className="text-[#FF7A00] mt-5 font-semibold">
+    View Roadmap →
+  </p>
+</Link>
 
           </div>
 
