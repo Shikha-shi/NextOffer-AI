@@ -5,7 +5,7 @@ from database.database import Base, engine
 from models.users import User
 from models.resume import Resume
 from models.student_profile import StudentProfile
-from app.routers import auth,student_profile,resume,jobs,career_roadmap
+from app.routers import auth,student_profile,resume,jobs,career_roadmap,learning_resources,personalized_learning
 
 
 
@@ -38,6 +38,8 @@ app.include_router(student_profile.router)
 app.include_router(resume.router)
 app.include_router(jobs.router)
 app.include_router(career_roadmap.router)
+app.include_router(learning_resources.router)
+app.include_router(personalized_learning.router)
 
 
 @app.get("/")

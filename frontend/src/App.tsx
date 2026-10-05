@@ -11,6 +11,8 @@ import Resume from "./pages/Resume";
 import SkillGap from "./pages/SkillGap";
 import JobRecommendations from "./pages/JobRecommendations";
 import CareerRoadmap from "./pages/CareerRoadmap";
+import LearningResources from "./pages/LearningResources";
+import CareerRecommendations from "./pages/CareerRecommendations";
 
 function App() {
   return (
@@ -28,8 +30,13 @@ function App() {
   <Route path="/profile" element={<StudentProfile />} />
   <Route path="/resume" element={<Resume />} />
   <Route path="/skills" element={<SkillGap />} />
+  <Route path="/careers" element={<CareerRecommendations />} />
   <Route path="/jobs" element={<JobRecommendations />} />
   <Route path="/career-roadmap" element={<CareerRoadmap />} />
+  <Route
+    path="/learning-resources"
+    element={<LearningResources />}
+  />
 </Route>
 
         {/* Unknown Routes */}

@@ -321,6 +321,27 @@ useEffect(() => {
                 Find Jobs →
               </p>
             </Link>
+            {/* Learning Resources */}
+<Link
+  to="/learning-resources"
+  className="group bg-[#172554] border border-blue-900/60 rounded-2xl p-6 hover:border-[#06B6D4]/60 transition"
+>
+  <div className="w-12 h-12 rounded-xl bg-[#06B6D4]/10 flex items-center justify-center text-2xl">
+    📚
+  </div>
+
+  <h3 className="text-xl font-bold mt-5">
+    Learning Resources
+  </h3>
+
+  <p className="text-gray-400 mt-2">
+    Get personalized videos, notes, practice, courses and projects based on your career goals.
+  </p>
+
+  <p className="text-[#06B6D4] mt-5 font-semibold">
+    Start Learning →
+  </p>
+</Link>
 
             {/* AI Assistant */}
             <Link
