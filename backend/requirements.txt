@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+pydantic
+sqlalchemy
+psycopg[binary]
+pydantic-settings
+pwdlib[argon2]
+PyJWT
+python-multipart
+pypdf
+google-genai>=2.3.0
+python-dotenv
