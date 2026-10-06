@@ -56,7 +56,7 @@ function StudentProfile() {
 
       try {
         const response = await fetch(
-          "http://127.0.0.1:8000/profile/me",
+          "/api/profile/me",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -141,8 +141,8 @@ function StudentProfile() {
     try {
       const response = await fetch(
         profileExists
-          ? "http://127.0.0.1:8000/profile/me"
-          : "http://127.0.0.1:8000/profile/",
+          ? "/api/profile/me"
+          : "/api/profile/",
         {
           method: profileExists ? "PUT" : "POST",
           headers: {

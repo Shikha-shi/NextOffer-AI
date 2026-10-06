@@ -10,14 +10,17 @@ const Dashboard = () => {
   navigate("/login");
 };
 const [profileCompletion, setProfileCompletion] = useState(0);
+const [resumeScore, setResumeScore] = useState<number | null>(null);
+const [skillsCount, setSkillsCount] = useState(0);
+const [jobMatches, setJobMatches] = useState(0);
 
 useEffect(() => {
-  const fetchProfileCompletion = async () => {
+  const fetchDashboardStats = async () => {
     if (!token) return;
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/profile/completion",
+      const profileResponse = await fetch(
+        "/api/profile/completion",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -25,19 +28,71 @@ useEffect(() => {
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch profile completion");
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        setProfileCompletion(
+          profileData.completion_percentage || 0
+        );
       }
 
-      const data = await response.json();
+      const skillsResponse = await fetch(
+        "/api/resume/skills",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      setProfileCompletion(data.completion_percentage);
+      if (skillsResponse.ok) {
+        const skillsData = await skillsResponse.json();
+
+        setSkillsCount(
+          skillsData.skills?.length ||
+          skillsData.current_skills?.length ||
+          0
+        );
+      }
+
+      const jobsResponse = await fetch(
+        "/api/jobs/recommendations",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (jobsResponse.ok) {
+        const jobsData = await jobsResponse.json();
+
+        setJobMatches(
+          jobsData.recommendations?.length || 0
+        );
+      }
+
+      const resumeResponse = await fetch(
+        "/api/resume/me",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (resumeResponse.ok) {
+        const resumeData = await resumeResponse.json();
+
+        if (resumeData.uploaded) {
+          setResumeScore(100);
+        }
+      }
     } catch (error) {
-      console.error("Profile completion error:", error);
+      console.error("Dashboard stats error:", error);
     }
   };
 
-  fetchProfileCompletion();
+  fetchDashboardStats();
 }, [token]);
 
   return (
@@ -131,12 +186,14 @@ useEffect(() => {
             </p>
 
             <p className="text-3xl font-bold mt-2">
-              —
-            </p>
+  {resumeScore !== null ? `${resumeScore}%` : "—"}
+</p>
 
-            <p className="text-gray-500 text-sm mt-2">
-              Upload your resume
-            </p>
+<p className="text-gray-500 text-sm mt-2">
+  {resumeScore !== null
+    ? "Resume uploaded"
+    : "Upload your resume"}
+</p>
           </div>
 
           <div className="bg-[#172554] border border-blue-900/60
@@ -147,11 +204,11 @@ useEffect(() => {
             </p>
 
             <p className="text-3xl font-bold mt-2">
-              0
+              {skillsCount}
             </p>
 
             <p className="text-gray-500 text-sm mt-2">
-              Add your skills
+               Skills detected
             </p>
           </div>
 
@@ -163,12 +220,12 @@ useEffect(() => {
             </p>
 
             <p className="text-3xl font-bold mt-2">
-              0
-            </p>
+               {jobMatches}
+             </p>
 
-            <p className="text-gray-500 text-sm mt-2">
-              Complete your profile
-            </p>
+             <p className="text-gray-500 text-sm mt-2">
+                Career matches found
+               </p>
           </div>
 
         </section>

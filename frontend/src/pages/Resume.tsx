@@ -16,7 +16,7 @@ const Resume = () => {
 
       try {
         const response = await fetch(
-          "http://127.0.0.1:8000/resume/me",
+          "/api/resume/me",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -71,7 +71,7 @@ const Resume = () => {
       formData.append("file", file);
 
       const response = await fetch(
-        "http://127.0.0.1:8000/resume/upload",
+        "/api/resume/upload",
         {
           method: "POST",
           headers: {

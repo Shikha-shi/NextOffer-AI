@@ -67,7 +67,7 @@ const CareerRoadmap = () => {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/career-roadmap",
+        "/api/career-roadmap",
         {
           headers: {
             Authorization: `Bearer ${token}`,
