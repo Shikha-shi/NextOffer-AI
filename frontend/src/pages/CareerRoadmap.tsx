@@ -41,7 +41,10 @@ interface Roadmap {
 }
 
 interface RoadmapResponse {
+  selected_career: string;
   current_skills: string[];
+  career_match_percentage: number;
+  available_careers: string[];
   roadmap: Roadmap;
 }
 
@@ -60,20 +63,22 @@ const CareerRoadmap = () => {
   const [data, setData] = useState<RoadmapResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedCareer, setSelectedCareer] = useState("");
 
-  const generateRoadmap = async () => {
+  const generateRoadmap = async (career?: string) => {
     setLoading(true);
     setError("");
 
     try {
-      const response = await fetch(
-        "/api/career-roadmap",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const url = career
+        ? `/api/career-roadmap?career=${encodeURIComponent(career)}`
+        : "/api/career-roadmap";
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const result = await response.json();
 
@@ -88,10 +93,11 @@ const CareerRoadmap = () => {
       }
 
       if (!result.roadmap) {
-        throw new Error("Invalid roadmap received from AI.");
+        throw new Error("Invalid roadmap received.");
       }
 
       setData(result);
+      setSelectedCareer(result.selected_career);
     } catch (err) {
       setError(
         err instanceof Error
@@ -108,6 +114,7 @@ const CareerRoadmap = () => {
       <div className="mx-auto max-w-7xl">
 
         {/* Header */}
+
         <div className="mb-10">
           <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-[#06B6D4]">
             AI Career Guidance
@@ -134,13 +141,13 @@ const CareerRoadmap = () => {
             </h2>
 
             <p className="mx-auto mt-4 max-w-xl leading-7 text-gray-400">
-              Gemini will analyze your resume and create a personalized
-              path covering skills, projects, internships, and long-term
-              career goals.
+              Your resume and skills will be analyzed to create a
+              personalized path covering skills, projects, internships,
+              and long-term career goals.
             </p>
 
             <button
-              onClick={generateRoadmap}
+              onClick={() => generateRoadmap()}
               disabled={loading}
               className="mt-8 rounded-xl bg-[#FF7A00] px-8 py-3.5 font-semibold transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -160,7 +167,54 @@ const CareerRoadmap = () => {
         {data && (
           <div className="space-y-10">
 
+            {/* Career Selector */}
+
+            <section className="rounded-3xl border border-[#06B6D4]/20 bg-[#111827] p-6 shadow-xl">
+              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-wider text-[#06B6D4]">
+                    Choose Your Career
+                  </p>
+
+                  <h2 className="mt-1 text-2xl font-bold">
+                    Customize Your Roadmap
+                  </h2>
+
+                  <p className="mt-2 max-w-2xl text-sm text-gray-400">
+                    Select a career path to generate a roadmap
+                    specifically for that role.
+                  </p>
+                </div>
+
+                <div className="w-full md:w-auto md:min-w-[300px]">
+                  <select
+                    value={selectedCareer}
+                    onChange={(event) => {
+                      const career = event.target.value;
+                      setSelectedCareer(career);
+                      generateRoadmap(career);
+                    }}
+                    disabled={loading}
+                    className="w-full rounded-xl border border-slate-700 bg-[#0B1220] px-4 py-3 text-sm text-white outline-none transition focus:border-[#06B6D4] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {data.available_careers.map((career) => (
+                      <option key={career} value={career}>
+                        {career}
+                      </option>
+                    ))}
+                  </select>
+
+                  {loading && (
+                    <p className="mt-2 text-xs text-[#67E8F9]">
+                      Generating roadmap...
+                    </p>
+                  )}
+                </div>
+              </div>
+            </section>
+
             {/* Career Direction */}
+
             <section className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
               <div className="rounded-3xl border border-[#06B6D4]/20 bg-gradient-to-br from-[#172554] to-[#111827] p-8 shadow-xl">
                 <div className="mb-6 flex items-center gap-4">
@@ -182,6 +236,10 @@ const CareerRoadmap = () => {
                 <p className="leading-7 text-gray-300">
                   {data.roadmap.career_direction.reason}
                 </p>
+
+                <div className="mt-6 inline-flex items-center rounded-full border border-[#06B6D4]/20 bg-[#06B6D4]/10 px-4 py-2 text-sm font-semibold text-[#67E8F9]">
+                  Career Match: {data.career_match_percentage}%
+                </div>
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-[#111827] p-8 shadow-xl">
@@ -203,6 +261,7 @@ const CareerRoadmap = () => {
             </section>
 
             {/* Current Skills */}
+
             <section className="rounded-3xl border border-white/10 bg-[#111827] p-8 shadow-xl">
               <div className="mb-6">
                 <p className="text-sm font-semibold uppercase tracking-wider text-[#06B6D4]">
@@ -226,53 +285,55 @@ const CareerRoadmap = () => {
               </div>
             </section>
 
-           {/* Career Flow */}
-<section>
-  <div className="mb-8 text-center">
-    <p className="text-sm font-semibold uppercase tracking-wider text-[#FF7A00]">
-      Your Journey
-    </p>
+            {/* Career Flow */}
 
-    <h2 className="mt-2 text-3xl font-bold">
-      From Skills to Career
-    </h2>
-  </div>
+            <section>
+              <div className="mb-8 text-center">
+                <p className="text-sm font-semibold uppercase tracking-wider text-[#FF7A00]">
+                  Your Journey
+                </p>
 
-  <div className="flex items-center gap-3 overflow-x-auto pb-4">
-    {[
-      ["🧠", "Current Skills", "Your foundation"],
-      ["🎯", "Career Target", "Where you're going"],
-      ["📚", "Learn", "Build new skills"],
-      ["🚀", "Build", "Create strong projects"],
-      ["💼", "Get Hired", "Prepare for opportunities"],
-    ].map(([icon, title, description], index) => (
-      <div
-        key={title}
-        className="flex min-w-[220px] flex-1 items-center gap-3"
-      >
-        <div className="w-full rounded-2xl border border-white/10 bg-[#111827] p-5 text-center transition hover:border-[#06B6D4]/40">
-          <div className="text-3xl">{icon}</div>
+                <h2 className="mt-2 text-3xl font-bold">
+                  From Skills to Career
+                </h2>
+              </div>
 
-          <h3 className="mt-3 font-bold">
-            {title}
-          </h3>
+              <div className="flex items-center gap-3 overflow-x-auto pb-4">
+                {[
+                  ["🧠", "Current Skills", "Your foundation"],
+                  ["🎯", "Career Target", "Where you're going"],
+                  ["📚", "Learn", "Build new skills"],
+                  ["🚀", "Build", "Create strong projects"],
+                  ["💼", "Get Hired", "Prepare for opportunities"],
+                ].map(([icon, title, description], index) => (
+                  <div
+                    key={title}
+                    className="flex min-w-[220px] flex-1 items-center gap-3"
+                  >
+                    <div className="w-full rounded-2xl border border-white/10 bg-[#111827] p-5 text-center transition hover:border-[#06B6D4]/40">
+                      <div className="text-3xl">{icon}</div>
 
-          <p className="mt-1 text-xs text-gray-500">
-            {description}
-          </p>
-        </div>
+                      <h3 className="mt-3 font-bold">
+                        {title}
+                      </h3>
 
-        {index < 4 && (
-          <div className="flex shrink-0 items-center justify-center text-2xl font-bold text-[#06B6D4]">
-            →
-          </div>
-        )}
-      </div>
-    ))}
-  </div>
-</section>
+                      <p className="mt-1 text-xs text-gray-500">
+                        {description}
+                      </p>
+                    </div>
+
+                    {index < 4 && (
+                      <div className="flex shrink-0 items-center justify-center text-2xl font-bold text-[#06B6D4]">
+                        →
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
 
             {/* Skills */}
+
             <section>
               <div className="mb-6">
                 <p className="text-sm font-semibold uppercase tracking-wider text-[#06B6D4]">
@@ -321,6 +382,7 @@ const CareerRoadmap = () => {
             </section>
 
             {/* Projects */}
+
             <section>
               <div className="mb-6">
                 <p className="text-sm font-semibold uppercase tracking-wider text-[#FF7A00]">
@@ -376,6 +438,7 @@ const CareerRoadmap = () => {
             </section>
 
             {/* Job Preparation */}
+
             <section className="rounded-3xl border border-white/10 bg-[#111827] p-8">
               <div className="mb-7">
                 <p className="text-sm font-semibold uppercase tracking-wider text-[#06B6D4]">
@@ -414,6 +477,7 @@ const CareerRoadmap = () => {
             </section>
 
             {/* Short Term */}
+
             <section>
               <div className="mb-7">
                 <p className="text-sm font-semibold uppercase tracking-wider text-[#FF7A00]">
@@ -467,6 +531,7 @@ const CareerRoadmap = () => {
             </section>
 
             {/* Long Term */}
+
             <section>
               <div className="mb-7">
                 <p className="text-sm font-semibold uppercase tracking-wider text-[#06B6D4]">
@@ -516,9 +581,12 @@ const CareerRoadmap = () => {
             </section>
 
             {/* Regenerate */}
+
             <div className="pb-6 text-center">
               <button
-                onClick={generateRoadmap}
+                onClick={() =>
+                  generateRoadmap(selectedCareer || undefined)
+                }
                 disabled={loading}
                 className="rounded-xl border border-[#06B6D4]/40 px-7 py-3 font-semibold text-[#67E8F9] transition hover:bg-[#06B6D4]/10 disabled:opacity-60"
               >
