@@ -415,7 +415,7 @@ useEffect(() => {
               </div>
 
               <h3 className="text-xl font-bold mt-5">
-                AI Career Assistant
+                AI Assistant
               </h3>
 
               <p className="text-gray-400 mt-2">

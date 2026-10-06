@@ -13,6 +13,7 @@ import JobRecommendations from "./pages/JobRecommendations";
 import CareerRoadmap from "./pages/CareerRoadmap";
 import LearningResources from "./pages/LearningResources";
 import CareerRecommendations from "./pages/CareerRecommendations";
+import AIAssistant from "./pages/AIAssistant";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
     path="/learning-resources"
     element={<LearningResources />}
   />
+  <Route path="/assistant" element={<AIAssistant />} />
 </Route>
 
         {/* Unknown Routes */}
