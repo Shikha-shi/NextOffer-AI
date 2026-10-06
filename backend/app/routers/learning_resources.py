@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
@@ -17,8 +17,11 @@ router = APIRouter(
     tags=["Learning Resources"]
 )
 
+
 security = HTTPBearer()
 
+
+# Resource Library
 
 RESOURCE_LIBRARY = {
     "Node.js": {
@@ -293,8 +296,14 @@ RESOURCE_LIBRARY = {
 }
 
 
+# Learning Resources
+
 @router.get("")
 def get_learning_resources(
+    career: str | None = Query(
+        default=None,
+        description="Career path for which learning resources should be generated"
+    ),
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ):
@@ -309,9 +318,15 @@ def get_learning_resources(
         .first()
     )
 
+    available_careers = list(LEARNING_PATHS.keys())
+
     if not resume:
         return {
             "message": "Please upload your resume first.",
+            "selected_career": None,
+            "available_careers": available_careers,
+            "career_match_percentage": 0,
+            "current_skills": [],
             "resources": []
         }
 
@@ -323,20 +338,58 @@ def get_learning_resources(
         current_skills
     )
 
-    if not career_matches:
+    selected_career = None
+    selected_match_percentage = 0
+
+    if career:
+        requested_career = next(
+            (
+                available_career
+                for available_career in available_careers
+                if available_career.lower() == career.lower()
+            ),
+            None
+        )
+
+        if not requested_career:
+            return {
+                "message": "Invalid career selection.",
+                "selected_career": None,
+                "available_careers": available_careers,
+                "career_match_percentage": 0,
+                "current_skills": current_skills,
+                "resources": []
+            }
+
+        selected_career = requested_career
+
+        selected_match = next(
+            (
+                match
+                for match in career_matches
+                if match["role"] == selected_career
+            ),
+            None
+        )
+
+        if selected_match:
+            selected_match_percentage = selected_match["match_percentage"]
+
+    elif career_matches:
+        selected_career = career_matches[0]["role"]
+        selected_match_percentage = career_matches[0]["match_percentage"]
+
+    if not selected_career:
         return {
-            "career_target": None,
+            "selected_career": None,
+            "available_careers": available_careers,
             "career_match_percentage": 0,
             "current_skills": current_skills,
             "resources": []
         }
 
-    best_career = career_matches[0]
-
-    career_target = best_career["role"]
-
     learning_path = LEARNING_PATHS.get(
-        career_target,
+        selected_career,
         {}
     )
 
@@ -358,8 +411,9 @@ def get_learning_resources(
             })
 
     return {
-        "career_target": career_target,
-        "career_match_percentage": best_career["match_percentage"],
+        "selected_career": selected_career,
+        "available_careers": available_careers,
+        "career_match_percentage": selected_match_percentage,
         "current_skills": current_skills,
         "resources": resources
     }
